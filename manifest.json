@@ -1,0 +1,15 @@
+{
+    "name": "YouTubeSubscriptionsFilter",
+    "description": "Youtubeの登録チャンネルのページで動画一覧をライブ、予定、動画（アーカイブ）でフィルタリングできるようにする拡張機能",
+    "manifest_version": 2,
+    "version": "1.3",
+    "icons": {
+        "128": "icon.png"
+    },
+    "content_scripts": [
+        {
+            "matches": ["https://www.youtube.com/*"],
+            "js": ["jquery-3.5.1.min.js", "content_scripts.js"]
+        }
+    ]
+}
