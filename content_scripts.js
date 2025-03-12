@@ -12,58 +12,64 @@ else{
 }
 
 function hideLive(){
-    $("ytd-grid-video-renderer").each(function(i, o){
-        if(!($(o).find("#video-badges").attr("hidden"))){
-            $(o).attr("hidden", "true");
-        }
+    $("ytd-rich-item-renderer").each(function(i, o){
+        if(!$(o).find("ytd-badge-supported-renderer").attr("hidden")) return;
+        $(o).attr("hidden", "true");
     });
 }
+
 function showLive(){
-    $("ytd-grid-video-renderer").each(function(i, o){
-        if(!($(o).find("#video-badges").attr("hidden"))){
-            $(o).removeAttr("hidden");
-        }
+    $("ytd-rich-item-renderer").each(function(i, o){
+        if(!$(o).find("ytd-badge-supported-renderer").attr("hidden")) return;
+        $(o).removeAttr("hidden");
     });
 }
 
 function hideScheduled(){
-    $("ytd-grid-video-renderer").each(function(i, o){
-        if($(o).find("ytd-toggle-button-renderer").length){
-            $(o).attr("hidden", "true");
-        }
+    $("ytd-rich-item-renderer").each(function(i, o){
+        if(!$(o).find("ytd-toggle-button-renderer").length) return;
+        $(o).attr("hidden", "true");
     });
 }
+
 function showScheduled(){
-    $("ytd-grid-video-renderer").each(function(i, o){
-        if($(o).find("ytd-toggle-button-renderer").length){
-            $(o).removeAttr("hidden");
-        }
+    $("ytd-rich-item-renderer").each(function(i, o){
+        if(!$(o).find("ytd-toggle-button-renderer").length) return;
+        $(o).removeAttr("hidden");
     });
 }
 
 function hideArchives(){
-    $("ytd-grid-video-renderer").each(function(i, o){
-        if($(o).find("#video-badges").attr("hidden")){
-            if(!($(o).find("ytd-toggle-button-renderer").length)){
-                $(o).attr("hidden", "true");
-            }
-        }
+    $("ytd-rich-item-renderer").each(function(i, o){
+        if(o.hasAttribute("is-slim-media")) return;
+        if($(o).find("ytd-badge-supported-renderer").attr("hidden")) return;
+        if($(o).find("ytd-toggle-button-renderer").length) return;
+        $(o).attr("hidden", "true");
     });
 }
+
 function showArchives(){
-    $("ytd-grid-video-renderer").each(function(i, o){
-        if($(o).find("#video-badges").attr("hidden")){
-            if(!($(o).find("ytd-toggle-button-renderer").length)){
-                $(o).removeAttr("hidden");
-            }
-        }
+    $("ytd-rich-item-renderer").each(function(i, o){
+        if(o.hasAttribute("is-slim-media")) return;
+        if($(o).find("ytd-badge-supported-renderer").attr("hidden")) return;
+        if($(o).find("ytd-toggle-button-renderer").length) return;
+        $(o).removeAttr("hidden");
     });
+}
+
+function hideShorts(){
+    $("ytd-rich-shelf-renderer").parent().parent().attr("hidden", "true");
+}
+
+function showShorts(){
+    $("ytd-rich-shelf-renderer").parent().parent().removeAttr("hidden");
 }
 
 function change(){
     let live = document.getElementById("cbLive").checked;
     let sche = document.getElementById("cbSche").checked;
     let arch = document.getElementById("cbArch").checked;
+    let shorts = document.getElementById("cbShorts").checked;
 
     if(live) showLive();
     else hideLive();
@@ -71,6 +77,9 @@ function change(){
     else hideScheduled();
     if(arch) showArchives();
     else hideArchives();
+    if(shorts) showShorts();
+    else hideShorts();
+
 
     scrollHeight = document.documentElement.scrollHeight;
     window.scrollBy(0,1);
@@ -78,11 +87,12 @@ function change(){
 }
 
 function subscLoaded(){
-    let insTxt = '<div id="subscFilter" style="color: var(--yt-spec-text-primary); font-size: 1.6rem; margin-left: ' + margin + 'px;">'
+    let insTxt = '<div id="subscFilter" style="color: var(--yt-spec-text-primary); font-size: 1.6rem; margin-left: ' + margin + 'px; background-color: var(--yt-spec-brand-background-primary); padding: 8px; border-radius: 4px;">'
         + 'フィルタ: '
         + 'ライブ<input id="cbLive" type="checkbox" checked> '
         + '予定<input id="cbSche" type="checkbox" checked> '
-        + '動画<input id="cbArch" type="checkbox" checked> ';
+        + '動画(アーカイブ)<input id="cbArch" type="checkbox" checked> '
+        + 'ショート<input id="cbShorts" type="checkbox" checked> ';
     $("ytd-masthead").append(insTxt);
     
     scrollHeight = document.documentElement.scrollHeight;
@@ -99,6 +109,10 @@ function subscLoaded(){
     $("#cbArch").on("click", () => {
         change();
     });
+    $("#cbShorts").on("click", () => {
+        change();
+    });
+
 
     let observer = new MutationObserver(function(){
         if(scrollHeight < document.documentElement.scrollHeight && subscFilter.getAttribute("hidden") == null){
